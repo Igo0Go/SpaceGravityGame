@@ -36,15 +36,8 @@ public class PlayerMovement : MonoBehaviour
         rb2D = GetComponent<Rigidbody2D>();
 
         myTransform = transform;
-        playerActionMap = GravityGameActionAsset.FindActionMap("Player");
-        gravityAction = playerActionMap.FindAction("GravityAction");
-        gravityAction.performed += OnGravityAction;
     }
 
-    private void OnDestroy()
-    {
-        gravityAction.performed -= OnGravityAction;
-    }
 
     private void FixedUpdate()
     {
@@ -70,23 +63,19 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    private void Update()
+    public void OnMove(InputAction.CallbackContext context)
     {
-        if(Input.GetKeyDown(KeyCode.Q))
-        {
-            myTransform.position = lastGravityPoint.position;
-            rb2D.velocity = Vector2.zero;
-        }
-    }
 
-    private void OnMove(InputValue inputValue)
-    {
-        currentImpulseVector = inputValue.Get<Vector2>();
+        currentImpulseVector = context.ReadValue<Vector2>();
     }
 
     public void OnGravityAction(InputAction.CallbackContext context)
     {
-        Debug.Log("Action");
+        if (context.started)
+        {
+            myTransform.position = lastGravityPoint.position;
+            rb2D.velocity = Vector2.zero;
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
