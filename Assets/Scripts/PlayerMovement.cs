@@ -8,24 +8,23 @@ using UnityEngine.UIElements;
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField]
-    private string gravityPointTag;
+
     [SerializeField]
     [Min(1)]
     private float antiGravityForce;
     [SerializeField]
-    private InputActionAsset GravityGameActionAsset;
-
-    [SerializeField]
+    [Min(1)]
     private float G = 5f;
-
+    [Space]
+    [SerializeField]
+    private string gravityPointTag;
+    [SerializeField]
+    private Transform cameraTransform;
 
     private Rigidbody2D rb2D;
     private Rigidbody2D currentGravityPoin;
     private Rigidbody2D lastGravityPoint;
     private Transform myTransform;
-    private InputActionMap playerActionMap;
-    private InputAction gravityAction;
     private Vector2 currentImpulseVector;
 
     private Vector3 gravityGozmos;
@@ -37,7 +36,6 @@ public class PlayerMovement : MonoBehaviour
 
         myTransform = transform;
     }
-
 
     private void FixedUpdate()
     {
@@ -83,6 +81,9 @@ public class PlayerMovement : MonoBehaviour
         if(collision.CompareTag(gravityPointTag))
         {
             currentGravityPoin = lastGravityPoint = collision.GetComponent<Rigidbody2D>();
+
+            StopAllCoroutines();
+            StartCoroutine(ChangeCameraZValueCoroutine(collision.transform.localScale.x));
         }
     }
 
@@ -108,5 +109,25 @@ public class PlayerMovement : MonoBehaviour
             Gizmos.color = Color.yellow;
             Gizmos.DrawLine(transform.position, rb2D.velocity);
         }
+    }
+
+    private IEnumerator ChangeCameraZValueCoroutine(float planetRadius)
+    {
+        float minimalZ = -10;
+        float startZ = cameraTransform.position.z;
+        float targetZ = minimalZ - (planetRadius - 1);
+
+        float t = 0;
+
+        while(t < 1)
+        {
+            t += Time.deltaTime;
+            cameraTransform.localPosition = 
+                new Vector3(0, 0, Mathf.Lerp(startZ, targetZ, t));
+
+            yield return null;
+        }
+
+        cameraTransform.localPosition = new Vector3(0, 0, targetZ);
     }
 }
