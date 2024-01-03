@@ -295,6 +295,17 @@
                     "action": "GravityAction",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4dfbe75f-8056-4441-aa84-a88032e39901",
+                    "path": "<AndroidGamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "GravityAction",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
