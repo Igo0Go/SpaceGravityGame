@@ -20,9 +20,11 @@ public class PlayerMovement : MonoBehaviour
     private string gravityPointTag;
     [SerializeField]
     private Transform cameraTransform;
+    [SerializeField, Min(0)]
+    public float frictionInSpace = 1;
 
     private Rigidbody2D rb2D;
-    private Rigidbody2D currentGravityPoin;
+    private Rigidbody2D currentGravityPoint;
     private Rigidbody2D lastGravityPoint;
     private Transform myTransform;
     private Vector2 currentImpulseVector;
@@ -39,25 +41,13 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if(currentGravityPoin != null)
+        if(currentGravityPoint != null)
         {
-            Vector2 gravity = currentGravityPoin.transform.position - myTransform.position;
-
-            float gravityForce = 0;
-
-            if (gravity.sqrMagnitude > 0)
-            {
-                gravityForce = G * currentGravityPoin.mass * 1/(currentGravityPoin.transform.localScale.x / gravity.magnitude);
-            }
-
-            gravityGozmos = gravity.normalized * gravityForce * Time.fixedDeltaTime;
-            movementGizmos = currentImpulseVector * antiGravityForce * Time.fixedDeltaTime;
-
-            rb2D.AddForce(gravity.normalized * gravityForce * Time.fixedDeltaTime, ForceMode2D.Force);
-
-            rb2D.AddForce(currentImpulseVector * antiGravityForce * Time.fixedDeltaTime, ForceMode2D.Impulse);
-
-            rb2D.AddForce(-rb2D.velocity.normalized * Time.fixedDeltaTime * currentGravityPoin.mass, ForceMode2D.Force);
+            MoveInPlanet();
+        }
+        else
+        {
+            MoveInSpace();
         }
     }
 
@@ -80,7 +70,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if(collision.CompareTag(gravityPointTag))
         {
-            currentGravityPoin = lastGravityPoint = collision.GetComponent<Rigidbody2D>();
+            currentGravityPoint = lastGravityPoint = collision.GetComponent<Rigidbody2D>();
 
             StopAllCoroutines();
             StartCoroutine(ChangeCameraZValueCoroutine(collision.transform.localScale.x));
@@ -89,9 +79,9 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.GetComponent<Rigidbody2D>() == currentGravityPoin)
+        if (collision.GetComponent<Rigidbody2D>() == currentGravityPoint)
         {
-            currentGravityPoin = null;
+            currentGravityPoint = null;
         }
     }
 
@@ -99,7 +89,7 @@ public class PlayerMovement : MonoBehaviour
     {
         Gizmos.color = Color.cyan;
         Gizmos.DrawLine(transform.position, transform.position + gravityGozmos);
-        if (currentGravityPoin != null)
+        if (currentGravityPoint != null)
         {
             Gizmos.color = Color.red;
             Gizmos.DrawLine(transform.position, transform.position + movementGizmos);
@@ -129,5 +119,34 @@ public class PlayerMovement : MonoBehaviour
         }
 
         cameraTransform.localPosition = new Vector3(0, 0, targetZ);
+    }
+
+
+    private void MoveInPlanet()
+    {
+        Vector2 gravity = currentGravityPoint.transform.position - myTransform.position;
+
+        float gravityForce = 0;
+
+        if (gravity.sqrMagnitude > 0)
+        {
+            gravityForce = G * currentGravityPoint.mass * 1 / (currentGravityPoint.transform.localScale.x / gravity.magnitude);
+        }
+
+        gravityGozmos = gravity.normalized * gravityForce * Time.fixedDeltaTime;
+        movementGizmos = currentImpulseVector * antiGravityForce * Time.fixedDeltaTime;
+
+        rb2D.AddForce(gravity.normalized * gravityForce * Time.fixedDeltaTime, ForceMode2D.Force);
+
+        rb2D.AddForce(currentImpulseVector * antiGravityForce * Time.fixedDeltaTime, ForceMode2D.Impulse);
+
+        rb2D.AddForce(-rb2D.velocity.normalized * Time.fixedDeltaTime * currentGravityPoint.mass, ForceMode2D.Force);
+    }
+
+    private void MoveInSpace()
+    {
+        rb2D.AddForce(currentImpulseVector * antiGravityForce * Time.fixedDeltaTime, ForceMode2D.Impulse);
+
+        rb2D.AddForce(-rb2D.velocity.normalized * frictionInSpace, ForceMode2D.Force);
     }
 }
