@@ -1,9 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics.Tracing;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UIElements;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerMovement : MonoBehaviour
@@ -20,15 +17,18 @@ public class PlayerMovement : MonoBehaviour
     private string gravityPointTag;
     [SerializeField]
     private Transform cameraTransform;
+    [SerializeField, Range(15, 180)]
+    public float impulseAngleByVelocity = 45;
 
-    private Rigidbody2D rb2D;
-    private Rigidbody2D currentGravityPoin;
+    [HideInInspector]
+    public Rigidbody2D rb2D;
+    private Rigidbody2D currentGravityPoint;
     private Rigidbody2D lastGravityPoint;
     private Transform myTransform;
-    private Vector2 currentImpulseVector;
-
-    private Vector3 gravityGozmos;
-    private Vector3 movementGizmos;
+    [HideInInspector]
+    public Vector2 currentImpulseVector;
+    [HideInInspector]
+    public Vector2 resultVectorInSpace;
 
     void Awake()
     {
@@ -39,31 +39,18 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if(currentGravityPoin != null)
+        if(currentGravityPoint != null)
         {
-            Vector2 gravity = currentGravityPoin.transform.position - myTransform.position;
-
-            float gravityForce = 0;
-
-            if (gravity.sqrMagnitude > 0)
-            {
-                gravityForce = G * currentGravityPoin.mass * 1/(currentGravityPoin.transform.localScale.x / gravity.magnitude);
-            }
-
-            gravityGozmos = gravity.normalized * gravityForce * Time.fixedDeltaTime;
-            movementGizmos = currentImpulseVector * antiGravityForce * Time.fixedDeltaTime;
-
-            rb2D.AddForce(gravity.normalized * gravityForce * Time.fixedDeltaTime, ForceMode2D.Force);
-
-            rb2D.AddForce(currentImpulseVector * antiGravityForce * Time.fixedDeltaTime, ForceMode2D.Impulse);
-
-            rb2D.AddForce(-rb2D.velocity.normalized * Time.fixedDeltaTime * currentGravityPoin.mass, ForceMode2D.Force);
+            MoveInPlanet();
+        }
+        else
+        {
+            MoveInSpace();
         }
     }
 
     public void OnMove(InputAction.CallbackContext context)
     {
-
         currentImpulseVector = context.ReadValue<Vector2>();
     }
 
@@ -71,6 +58,12 @@ public class PlayerMovement : MonoBehaviour
     {
         if (context.started)
         {
+            if(lastGravityPoint == null)
+            {
+                Debug.LogError("Точки сохранения ещё не было!!!");
+                return;
+            }
+
             myTransform.position = lastGravityPoint.position;
             rb2D.velocity = Vector2.zero;
         }
@@ -80,7 +73,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if(collision.CompareTag(gravityPointTag))
         {
-            currentGravityPoin = lastGravityPoint = collision.GetComponent<Rigidbody2D>();
+            currentGravityPoint = lastGravityPoint = collision.GetComponent<Rigidbody2D>();
 
             StopAllCoroutines();
             StartCoroutine(ChangeCameraZValueCoroutine(collision.transform.localScale.x));
@@ -89,25 +82,9 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.GetComponent<Rigidbody2D>() == currentGravityPoin)
+        if (collision.GetComponent<Rigidbody2D>() == currentGravityPoint)
         {
-            currentGravityPoin = null;
-        }
-    }
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawLine(transform.position, transform.position + gravityGozmos);
-        if (currentGravityPoin != null)
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawLine(transform.position, transform.position + movementGizmos);
-        }
-        if(rb2D != null)
-        {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawLine(transform.position, rb2D.velocity);
+            currentGravityPoint = null;
         }
     }
 
@@ -129,5 +106,45 @@ public class PlayerMovement : MonoBehaviour
         }
 
         cameraTransform.localPosition = new Vector3(0, 0, targetZ);
+    }
+
+    private void MoveInPlanet()
+    {
+        Vector2 gravity = currentGravityPoint.transform.position - myTransform.position;
+
+        float gravityForce = 0;
+
+        if (gravity.sqrMagnitude > 0)
+        {
+            gravityForce = G * currentGravityPoint.mass * 1 / (currentGravityPoint.transform.localScale.x / gravity.magnitude);
+        }
+
+        rb2D.AddForce(gravity.normalized * gravityForce * Time.fixedDeltaTime, ForceMode2D.Force);
+
+        rb2D.AddForce(currentImpulseVector * antiGravityForce * Time.fixedDeltaTime, ForceMode2D.Impulse);
+
+        rb2D.AddForce(-rb2D.velocity.normalized * Time.fixedDeltaTime * currentGravityPoint.mass, ForceMode2D.Force);
+    }
+
+    private void MoveInSpace()
+    {
+        float currentAngle = Vector2.SignedAngle(rb2D.velocity, currentImpulseVector.normalized);
+        resultVectorInSpace = currentImpulseVector.normalized;
+
+        if (currentAngle < -impulseAngleByVelocity)
+        {
+            resultVectorInSpace = RotateVector2(rb2D.velocity.normalized, -impulseAngleByVelocity);
+        }
+        else if (currentAngle > impulseAngleByVelocity)
+        {
+            resultVectorInSpace = RotateVector2(rb2D.velocity.normalized, impulseAngleByVelocity);
+        }
+
+        rb2D.AddForce(resultVectorInSpace.normalized * Time.fixedDeltaTime, ForceMode2D.Impulse);
+    }
+
+    public Vector2 RotateVector2(Vector2 v, float delta)
+    {
+        return Quaternion.Euler(0, 0, delta) * v;
     }
 }
