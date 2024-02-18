@@ -27,7 +27,7 @@ public class DebugWindowScript : MonoBehaviour
     [SerializeField]
     private Text textPlayerAngle;
     [SerializeField]
-    private InputField playerAngleInputField;
+    private InputField playerRotateInputField;
 
     [SerializeField]
     private PlayerMovement playerMovement;
@@ -45,8 +45,8 @@ public class DebugWindowScript : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         sliderPlanetMass.onValueChanged.AddListener(OnPlanetMassSliderChanged);
         sliderPlanetRadius.onValueChanged.AddListener(OnPlanetRadiusSliderChanged);
-        sliderPlayerAngle.onValueChanged.AddListener(OnPlayerAngleSliderChanged);
-        playerAngleInputField.onValueChanged.AddListener(OnPlayerAngleInputFieldChanget);
+        sliderPlayerAngle.onValueChanged.AddListener(OnRotateForceSliderChanged);
+        playerRotateInputField.onValueChanged.AddListener(OnPlayerRotateForceInputFieldChanget);
         planetMassInputField.onValueChanged.AddListener (OnPlanetMassInputFieldChanget);
         planetRadiusInputField.onValueChanged.AddListener(OnPlaneRadiusInputFieldChanget);
         SetEditModeValue(false);
@@ -122,11 +122,11 @@ public class DebugWindowScript : MonoBehaviour
             DrawPlanetStats();
         }
     }
-    private void OnPlayerAngleSliderChanged(float newValue)
+    private void OnRotateForceSliderChanged(float newValue)
     {
-        playerAngleInputField.text = newValue.ToString();
-        playerMovement.impulseAngleByVelocity = newValue;
-        textPlayerAngle.text = "Угол отклонения: " + playerMovement.impulseAngleByVelocity;
+        playerRotateInputField.text = newValue.ToString();
+        playerMovement.rotateForce = newValue;
+        textPlayerAngle.text = "Угол отклонения: " + playerMovement.rotateForce;
         linesPack.DrawAngle(playerMovement);
     }
 
@@ -150,12 +150,12 @@ public class DebugWindowScript : MonoBehaviour
             DrawPlanetStats();
         }
     }
-    private void OnPlayerAngleInputFieldChanget(string newValue)
+    private void OnPlayerRotateForceInputFieldChanget(string newValue)
     {
         float value = float.Parse(newValue);
         sliderPlayerAngle.value = value;
-        playerMovement.impulseAngleByVelocity = value;
-        textPlayerAngle.text = "Угол отклонения: " + playerMovement.impulseAngleByVelocity;
+        playerMovement.rotateForce = value;
+        textPlayerAngle.text = "Угол отклонения: " + playerMovement.rotateForce;
         linesPack.DrawAngle(playerMovement);
     }
 
@@ -173,9 +173,9 @@ public class DebugWindowScript : MonoBehaviour
     }
     private void DrawAngleStats()
     {
-        sliderPlayerAngle.value = playerMovement.impulseAngleByVelocity;
-        playerAngleInputField.text = playerMovement.impulseAngleByVelocity.ToString();
-        textPlayerAngle.text = "Угол отклонения: " + playerMovement.impulseAngleByVelocity;
+        sliderPlayerAngle.value = playerMovement.rotateForce;
+        playerRotateInputField.text = playerMovement.rotateForce.ToString();
+        textPlayerAngle.text = "Угол отклонения: " + playerMovement.rotateForce;
     }
 }
 
@@ -192,8 +192,8 @@ public class DebugLinesPack
 
     public void DrawAngle(PlayerMovement playerMovement)
     {
-        lineAngleRight.Vector = playerMovement.RotateVector2(playerMovement.rb2D.velocity.normalized, -playerMovement.impulseAngleByVelocity);
-        lineAngleLeft.Vector = playerMovement.RotateVector2(playerMovement.rb2D.velocity.normalized, playerMovement.impulseAngleByVelocity);
+        lineAngleRight.Vector = playerMovement.RotateVector2(playerMovement.rb2D.velocity.normalized, -playerMovement.rotateForce);
+        lineAngleLeft.Vector = playerMovement.RotateVector2(playerMovement.rb2D.velocity.normalized, playerMovement.rotateForce);
     }
     public void DrawDirections(PlayerMovement playerMovement)
     {
