@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - GravityPoint
   layers:
   - Default
   - TransparentFX
@@ -40,4 +41,13 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Bacground
+    uniqueID: 660402113
+    locked: 0
+  - name: Interactive
+    uniqueID: 2978012893
+    locked: 0
+  - name: Player
+    uniqueID: 2212833415
     locked: 0

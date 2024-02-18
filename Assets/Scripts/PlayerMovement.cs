@@ -17,8 +17,10 @@ public class PlayerMovement : MonoBehaviour
     private string gravityPointTag;
     [SerializeField]
     private Transform cameraTransform;
-    [SerializeField, Range(15, 180)]
-    public float impulseAngleByVelocity = 45;
+    [SerializeField, Range(0,1)]
+    public float rotateForce = 1;
+    [SerializeField, Range(0,180)]
+    private float impulseAngleByVelocity = 180;
 
     [HideInInspector]
     public Rigidbody2D rb2D;
@@ -131,16 +133,20 @@ public class PlayerMovement : MonoBehaviour
         float currentAngle = Vector2.SignedAngle(rb2D.velocity, currentImpulseVector.normalized);
         resultVectorInSpace = currentImpulseVector.normalized;
 
-        if (currentAngle < -impulseAngleByVelocity)
+        if (currentAngle < 0)
         {
             resultVectorInSpace = RotateVector2(rb2D.velocity.normalized, -impulseAngleByVelocity);
         }
-        else if (currentAngle > impulseAngleByVelocity)
+        else if (currentAngle > 0)
         {
             resultVectorInSpace = RotateVector2(rb2D.velocity.normalized, impulseAngleByVelocity);
         }
+        else
+        {
+            return;
+        }
 
-        rb2D.AddForce(resultVectorInSpace.normalized * Time.fixedDeltaTime, ForceMode2D.Impulse);
+        rb2D.AddForce(resultVectorInSpace.normalized * rotateForce * Time.fixedDeltaTime, ForceMode2D.Impulse);
     }
 
     public Vector2 RotateVector2(Vector2 v, float delta)
