@@ -23,13 +23,6 @@ public class DebugWindowScript : MonoBehaviour
     private InputField planetRadiusInputField;
 
     [SerializeField]
-    private Slider sliderPlayerAngle;
-    [SerializeField]
-    private Text textPlayerAngle;
-    [SerializeField]
-    private InputField playerRotateInputField;
-
-    [SerializeField]
     private PlayerMovement playerMovement;
 
     [SerializeField]
@@ -38,15 +31,11 @@ public class DebugWindowScript : MonoBehaviour
     private Rigidbody2D currentRB;
     private Transform currentTransform;
 
-    private Rigidbody2D rb;
 
     private void Awake()
     {
-        rb = GetComponent<Rigidbody2D>();
         sliderPlanetMass.onValueChanged.AddListener(OnPlanetMassSliderChanged);
         sliderPlanetRadius.onValueChanged.AddListener(OnPlanetRadiusSliderChanged);
-        sliderPlayerAngle.onValueChanged.AddListener(OnRotateForceSliderChanged);
-        playerRotateInputField.onValueChanged.AddListener(OnPlayerRotateForceInputFieldChanget);
         planetMassInputField.onValueChanged.AddListener (OnPlanetMassInputFieldChanget);
         planetRadiusInputField.onValueChanged.AddListener(OnPlaneRadiusInputFieldChanget);
         SetEditModeValue(false);
@@ -86,7 +75,6 @@ public class DebugWindowScript : MonoBehaviour
     private void LateUpdate()
     {
         linesPack.DrawDirections(playerMovement);
-        linesPack.DrawAngle(playerMovement);
     }
 
     private void SetEditModeValue(bool value)
@@ -98,8 +86,6 @@ public class DebugWindowScript : MonoBehaviour
         if (value)
         {
             DrawPlanetStats();
-            DrawAngleStats();
-            linesPack.DrawAngle(playerMovement);
             linesPack.DrawDirections(playerMovement);
         }
     }
@@ -122,13 +108,6 @@ public class DebugWindowScript : MonoBehaviour
             DrawPlanetStats();
         }
     }
-    private void OnRotateForceSliderChanged(float newValue)
-    {
-        playerRotateInputField.text = newValue.ToString();
-        playerMovement.rotateForce = newValue;
-        textPlayerAngle.text = "Угол отклонения: " + playerMovement.rotateForce;
-        linesPack.DrawAngle(playerMovement);
-    }
 
     private void OnPlanetMassInputFieldChanget(string newValue)
     {
@@ -150,14 +129,6 @@ public class DebugWindowScript : MonoBehaviour
             DrawPlanetStats();
         }
     }
-    private void OnPlayerRotateForceInputFieldChanget(string newValue)
-    {
-        float value = float.Parse(newValue);
-        sliderPlayerAngle.value = value;
-        playerMovement.rotateForce = value;
-        textPlayerAngle.text = "Угол отклонения: " + playerMovement.rotateForce;
-        linesPack.DrawAngle(playerMovement);
-    }
 
     private void DrawPlanetStats()
     {
@@ -171,12 +142,6 @@ public class DebugWindowScript : MonoBehaviour
             sliderPlanetRadius.value = currentTransform.localScale.x;
         }
     }
-    private void DrawAngleStats()
-    {
-        sliderPlayerAngle.value = playerMovement.rotateForce;
-        playerRotateInputField.text = playerMovement.rotateForce.ToString();
-        textPlayerAngle.text = "Угол отклонения: " + playerMovement.rotateForce;
-    }
 }
 
 [System.Serializable]
@@ -184,17 +149,10 @@ public class DebugLinesPack
 {
     public GameObject debugPack;
 
-    public LineRendererController lineAngleLeft;
-    public LineRendererController lineAngleRight;
     public LineRendererController lineInputVector;
     public LineRendererController lineAngleResultVector;
     public LineRendererController lineVelocityVector;
 
-    public void DrawAngle(PlayerMovement playerMovement)
-    {
-        lineAngleRight.Vector = playerMovement.RotateVector2(playerMovement.rb2D.velocity.normalized, -playerMovement.rotateForce);
-        lineAngleLeft.Vector = playerMovement.RotateVector2(playerMovement.rb2D.velocity.normalized, playerMovement.rotateForce);
-    }
     public void DrawDirections(PlayerMovement playerMovement)
     {
         lineInputVector.Vector = playerMovement.currentImpulseVector;

@@ -19,8 +19,6 @@ public class PlayerMovement : MonoBehaviour
     private Transform cameraTransform;
     [SerializeField, Range(0,1)]
     public float rotateForce = 1;
-    [SerializeField, Range(0,180)]
-    private float impulseAngleByVelocity = 180;
 
     [HideInInspector]
     public Rigidbody2D rb2D;
@@ -75,6 +73,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if(collision.CompareTag(gravityPointTag))
         {
+            resultVectorInSpace = Vector2.zero;
             currentGravityPoint = lastGravityPoint = collision.GetComponent<Rigidbody2D>();
 
             StopAllCoroutines();
@@ -135,22 +134,18 @@ public class PlayerMovement : MonoBehaviour
 
         if (currentAngle < 0)
         {
-            resultVectorInSpace = RotateVector2(rb2D.velocity.normalized, -impulseAngleByVelocity);
+            resultVectorInSpace = Quaternion.Euler(0,0,-90)*rb2D.velocity.normalized;
         }
         else if (currentAngle > 0)
         {
-            resultVectorInSpace = RotateVector2(rb2D.velocity.normalized, impulseAngleByVelocity);
+            resultVectorInSpace = Quaternion.Euler(0, 0, 90) * rb2D.velocity.normalized;
         }
         else
         {
+            resultVectorInSpace = Vector2.zero;
             return;
         }
 
         rb2D.AddForce(resultVectorInSpace.normalized * rotateForce * Time.fixedDeltaTime, ForceMode2D.Impulse);
-    }
-
-    public Vector2 RotateVector2(Vector2 v, float delta)
-    {
-        return Quaternion.Euler(0, 0, delta) * v;
     }
 }
