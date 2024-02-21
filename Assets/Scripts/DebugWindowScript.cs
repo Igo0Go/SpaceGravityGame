@@ -23,6 +23,11 @@ public class DebugWindowScript : MonoBehaviour
     private InputField planetRadiusInputField;
 
     [SerializeField]
+    private Slider sliderPlayerDeflectionForce;
+    [SerializeField]
+    private InputField PlayerDeflectionForceInputField;
+
+    [SerializeField]
     private PlayerMovement playerMovement;
 
     [SerializeField]
@@ -31,13 +36,14 @@ public class DebugWindowScript : MonoBehaviour
     private Rigidbody2D currentRB;
     private Transform currentTransform;
 
-
     private void Awake()
     {
         sliderPlanetMass.onValueChanged.AddListener(OnPlanetMassSliderChanged);
         sliderPlanetRadius.onValueChanged.AddListener(OnPlanetRadiusSliderChanged);
         planetMassInputField.onValueChanged.AddListener (OnPlanetMassInputFieldChanget);
         planetRadiusInputField.onValueChanged.AddListener(OnPlaneRadiusInputFieldChanget);
+        PlayerDeflectionForceInputField.onValueChanged.AddListener(OnPlayerDeflectionForceInputFieldChanget);
+        sliderPlayerDeflectionForce.onValueChanged.AddListener(OnPlayerDeflectionForceSliderChanged);
         SetEditModeValue(false);
     }
 
@@ -86,6 +92,7 @@ public class DebugWindowScript : MonoBehaviour
         if (value)
         {
             DrawPlanetStats();
+            DrawPlayerStats();
             linesPack.DrawDirections(playerMovement);
         }
     }
@@ -108,25 +115,42 @@ public class DebugWindowScript : MonoBehaviour
             DrawPlanetStats();
         }
     }
+    private void OnPlayerDeflectionForceSliderChanged(float newValue)
+    {
+        playerMovement.DeflectionForce = sliderPlayerDeflectionForce.value;
+        DrawPlayerStats();
+    }
 
     private void OnPlanetMassInputFieldChanget(string newValue)
     {
         if (currentRB != null)
         {
-            float value = float.Parse(newValue);
-            sliderPlanetMass.value = value;
-            currentRB.mass = value;
-            DrawPlanetStats();
+            if (int.TryParse(newValue, out int value))
+            {
+                sliderPlanetMass.value = value;
+                currentRB.mass = value;
+                DrawPlanetStats();
+            }
         }
     }
     private void OnPlaneRadiusInputFieldChanget(string newValue)
     {
         if (currentRB != null)
         {
-            float value = float.Parse(newValue);
-            sliderPlanetRadius.value = value;
-            currentTransform.localScale = Vector3.one * value;
-            DrawPlanetStats();
+            if (int.TryParse(newValue, out int value))
+            {
+                sliderPlanetRadius.value = value;
+                currentTransform.localScale = Vector3.one * value;
+                DrawPlanetStats();
+            }
+        }
+    }
+    private void OnPlayerDeflectionForceInputFieldChanget(string newValue)
+    {
+        if(int.TryParse(newValue, out int value))
+        {
+            playerMovement.DeflectionForce = value;
+            DrawPlayerStats();
         }
     }
 
@@ -142,6 +166,11 @@ public class DebugWindowScript : MonoBehaviour
             sliderPlanetRadius.value = currentTransform.localScale.x;
         }
     }
+    private void DrawPlayerStats()
+    {
+        PlayerDeflectionForceInputField.text = playerMovement.DeflectionForce.ToString();
+        sliderPlayerDeflectionForce.value = playerMovement.DeflectionForce;
+    }
 }
 
 [System.Serializable]
@@ -156,7 +185,7 @@ public class DebugLinesPack
     public void DrawDirections(PlayerMovement playerMovement)
     {
         lineInputVector.Vector = playerMovement.currentImpulseVector;
-        lineAngleResultVector.Vector = playerMovement.resultVectorInSpace;
+        lineAngleResultVector.Vector = playerMovement.resultVectorInSpace * playerMovement.DeflectionForce;
         lineVelocityVector.Vector = playerMovement.rb2D.velocity;
     }
 }

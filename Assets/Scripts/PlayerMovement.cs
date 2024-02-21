@@ -17,8 +17,8 @@ public class PlayerMovement : MonoBehaviour
     private string gravityPointTag;
     [SerializeField]
     private Transform cameraTransform;
-    [SerializeField, Range(0,1)]
-    public float rotateForce = 1;
+    [SerializeField, Range(0,2)]
+    private float deflectionForce = 1;
 
     [HideInInspector]
     public Rigidbody2D rb2D;
@@ -29,6 +29,27 @@ public class PlayerMovement : MonoBehaviour
     public Vector2 currentImpulseVector;
     [HideInInspector]
     public Vector2 resultVectorInSpace;
+
+
+    public float DeflectionForce
+    {
+        get
+        {
+            return deflectionForce;
+        }
+        set
+        {
+            deflectionForce = value;
+            if(deflectionForce < 0)
+            {
+                deflectionForce = 0;
+            }
+            if(deflectionForce > 2)
+            {
+                deflectionForce = 2;
+            }
+        }
+    }
 
     void Awake()
     {
@@ -146,6 +167,6 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
-        rb2D.AddForce(resultVectorInSpace.normalized * rotateForce * Time.fixedDeltaTime, ForceMode2D.Impulse);
+        rb2D.AddForce(resultVectorInSpace.normalized * deflectionForce * Time.fixedDeltaTime, ForceMode2D.Impulse);
     }
 }
