@@ -16,9 +16,11 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField]
     private string gravityPointTag;
     [SerializeField]
+    private string deadZoneTag;
+    [SerializeField]
     private Transform cameraTransform;
-    [SerializeField, Range(0,1)]
-    public float rotateForce = 1;
+    [SerializeField, Range(0,2)]
+    private float deflectionForce = 1;
 
     [HideInInspector]
     public Rigidbody2D rb2D;
@@ -29,6 +31,27 @@ public class PlayerMovement : MonoBehaviour
     public Vector2 currentImpulseVector;
     [HideInInspector]
     public Vector2 resultVectorInSpace;
+
+
+    public float DeflectionForce
+    {
+        get
+        {
+            return deflectionForce;
+        }
+        set
+        {
+            deflectionForce = value;
+            if(deflectionForce < 0)
+            {
+                deflectionForce = 0;
+            }
+            if(deflectionForce > 2)
+            {
+                deflectionForce = 2;
+            }
+        }
+    }
 
     void Awake()
     {
@@ -54,18 +77,11 @@ public class PlayerMovement : MonoBehaviour
         currentImpulseVector = context.ReadValue<Vector2>();
     }
 
-    public void OnGravityAction(InputAction.CallbackContext context)
+    public void OnRespawnAction(InputAction.CallbackContext context)
     {
         if (context.started)
         {
-            if(lastGravityPoint == null)
-            {
-                Debug.LogError("Точки сохранения ещё не было!!!");
-                return;
-            }
-
-            myTransform.position = lastGravityPoint.position;
-            rb2D.velocity = Vector2.zero;
+            Respawn();
         }
     }
 
@@ -78,6 +94,10 @@ public class PlayerMovement : MonoBehaviour
 
             StopAllCoroutines();
             StartCoroutine(ChangeCameraZValueCoroutine(collision.transform.localScale.x));
+        }
+        else if(collision.CompareTag(deadZoneTag))
+        {
+            StartCoroutine(RespawnCoroutine());
         }
     }
 
@@ -146,6 +166,40 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
-        rb2D.AddForce(resultVectorInSpace.normalized * rotateForce * Time.fixedDeltaTime, ForceMode2D.Impulse);
+        rb2D.AddForce(resultVectorInSpace.normalized * deflectionForce * Time.fixedDeltaTime, ForceMode2D.Impulse);
+    }
+
+    private void Respawn()
+    {
+        if (lastGravityPoint == null)
+        {
+            Debug.LogError("Точки сохранения ещё не было!!!");
+            return;
+        }
+
+        myTransform.position = lastGravityPoint.position;
+        rb2D.velocity = Vector2.zero;
+    }
+
+    private IEnumerator RespawnCoroutine()
+    {
+        float minimalZ = -10;
+        float startZ = cameraTransform.position.z;
+        float targetZ = minimalZ;
+
+        float t = 0;
+
+        while (t < 1)
+        {
+            t += Time.deltaTime;
+            cameraTransform.localPosition =
+                new Vector3(0, 0, Mathf.Lerp(startZ, targetZ, t));
+
+            yield return null;
+        }
+
+        cameraTransform.localPosition = new Vector3(0, 0, targetZ);
+
+        Respawn();
     }
 }
