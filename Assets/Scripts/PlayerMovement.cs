@@ -46,9 +46,9 @@ public class PlayerMovement : MonoBehaviour
             {
                 deflectionForce = 0;
             }
-            if(deflectionForce > 2)
+            if(deflectionForce > 4)
             {
-                deflectionForce = 2;
+                deflectionForce = 4;
             }
         }
     }
