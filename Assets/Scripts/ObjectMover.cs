@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class ObjectMover : MonoBehaviour
@@ -22,13 +20,13 @@ public class ObjectMover : MonoBehaviour
         objectOnMove.position = startTransform.position;
         //геймобджект
         //два трансформа между которыми будет движение геймобжекта
-        
+
     }
 
     void Update()
     {
         //двигай объект по вектору пока растояние между объектами не станет меньше diff
-        if (Vector2.Distance(endTransform.position, objectOnMove.position)>objectSpeed* Time.deltaTime*2)
+        if (Vector2.Distance(endTransform.position, objectOnMove.position) > objectSpeed * Time.deltaTime * 2)
         {
             objectOnMove.position += moveVector * objectSpeed * Time.deltaTime;
         }
@@ -40,8 +38,8 @@ public class ObjectMover : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        if(startTransform != null && endTransform != null) 
-        { 
+        if (startTransform != null && endTransform != null)
+        {
             Gizmos.color = Color.red;
             Gizmos.DrawLine(startTransform.position, endTransform.position);
         }

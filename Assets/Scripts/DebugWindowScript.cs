@@ -1,4 +1,3 @@
-using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -40,7 +39,7 @@ public class DebugWindowScript : MonoBehaviour
     {
         sliderPlanetMass.onValueChanged.AddListener(OnPlanetMassSliderChanged);
         sliderPlanetRadius.onValueChanged.AddListener(OnPlanetRadiusSliderChanged);
-        planetMassInputField.onValueChanged.AddListener (OnPlanetMassInputFieldChanget);
+        planetMassInputField.onValueChanged.AddListener(OnPlanetMassInputFieldChanget);
         planetRadiusInputField.onValueChanged.AddListener(OnPlaneRadiusInputFieldChanget);
         PlayerDeflectionForceInputField.onValueChanged.AddListener(OnPlayerDeflectionForceInputFieldChanget);
         sliderPlayerDeflectionForce.onValueChanged.AddListener(OnPlayerDeflectionForceSliderChanged);
@@ -49,7 +48,7 @@ public class DebugWindowScript : MonoBehaviour
 
     private void Update()
     {
-        if(Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0))
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit2D hit = Physics2D.GetRayIntersection(ray, Mathf.Infinity);
@@ -67,7 +66,7 @@ public class DebugWindowScript : MonoBehaviour
             }
         }
 
-        if(Input.GetKeyDown(KeyCode.Z))
+        if (Input.GetKeyDown(KeyCode.Z))
         {
             SetEditModeValue(!editModePanel.activeSelf);
         }
@@ -87,7 +86,7 @@ public class DebugWindowScript : MonoBehaviour
     {
         editModePanel.SetActive(value);
         linesPack.debugPack.SetActive(value);
-        Cursor.lockState = value? CursorLockMode.None : CursorLockMode.Locked;
+        Cursor.lockState = value ? CursorLockMode.None : CursorLockMode.Locked;
         Cursor.visible = value;
         if (value)
         {
@@ -99,7 +98,7 @@ public class DebugWindowScript : MonoBehaviour
 
     private void OnPlanetMassSliderChanged(float newValue)
     {
-        if(currentRB != null)
+        if (currentRB != null)
         {
             currentRB.mass = newValue;
             planetMassInputField.text = newValue.ToString();
@@ -147,7 +146,7 @@ public class DebugWindowScript : MonoBehaviour
     }
     private void OnPlayerDeflectionForceInputFieldChanget(string newValue)
     {
-        if(int.TryParse(newValue, out int value))
+        if (int.TryParse(newValue, out int value))
         {
             playerMovement.DeflectionForce = value;
             DrawPlayerStats();
@@ -156,9 +155,9 @@ public class DebugWindowScript : MonoBehaviour
 
     private void DrawPlanetStats()
     {
-        if(currentRB != null)
+        if (currentRB != null)
         {
-            textPlanetMass.text  = "Масса: " + currentRB.mass;
+            textPlanetMass.text = "Масса: " + currentRB.mass;
             planetMassInputField.text = currentRB.mass.ToString();
             sliderPlanetMass.value = currentRB.mass;
             textPlanetRadius.text = "Радиус: " + currentTransform.localScale.x;

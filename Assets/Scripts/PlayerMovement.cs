@@ -19,7 +19,7 @@ public class PlayerMovement : MonoBehaviour
     private string deadZoneTag;
     [SerializeField]
     private Transform cameraTransform;
-    [SerializeField, Range(0,2)]
+    [SerializeField, Range(0, 2)]
     private float deflectionForce = 1;
 
     [HideInInspector]
@@ -42,11 +42,11 @@ public class PlayerMovement : MonoBehaviour
         set
         {
             deflectionForce = value;
-            if(deflectionForce < 0)
+            if (deflectionForce < 0)
             {
                 deflectionForce = 0;
             }
-            if(deflectionForce > 4)
+            if (deflectionForce > 4)
             {
                 deflectionForce = 4;
             }
@@ -62,7 +62,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if(currentGravityPoint != null)
+        if (currentGravityPoint != null)
         {
             MoveInPlanet();
         }
@@ -87,7 +87,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision.CompareTag(gravityPointTag))
+        if (collision.CompareTag(gravityPointTag))
         {
             resultVectorInSpace = Vector2.zero;
             currentGravityPoint = lastGravityPoint = collision.GetComponent<Rigidbody2D>();
@@ -95,9 +95,14 @@ public class PlayerMovement : MonoBehaviour
             StopAllCoroutines();
             StartCoroutine(ChangeCameraZValueCoroutine(collision.transform.localScale.x));
         }
-        else if(collision.CompareTag(deadZoneTag))
+        else if (collision.CompareTag(deadZoneTag))
         {
             StartCoroutine(RespawnCoroutine());
+        }
+        else if (collision.CompareTag("Collectable"))
+        {
+            Collectable bonus = collision.GetComponent<Collectable>();
+            bonus.Collect();
         }
     }
 
@@ -117,10 +122,10 @@ public class PlayerMovement : MonoBehaviour
 
         float t = 0;
 
-        while(t < 1)
+        while (t < 1)
         {
             t += Time.deltaTime;
-            cameraTransform.localPosition = 
+            cameraTransform.localPosition =
                 new Vector3(0, 0, Mathf.Lerp(startZ, targetZ, t));
 
             yield return null;
@@ -154,7 +159,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (currentAngle < 0)
         {
-            resultVectorInSpace = Quaternion.Euler(0,0,-90)*rb2D.velocity.normalized;
+            resultVectorInSpace = Quaternion.Euler(0, 0, -90) * rb2D.velocity.normalized;
         }
         else if (currentAngle > 0)
         {
