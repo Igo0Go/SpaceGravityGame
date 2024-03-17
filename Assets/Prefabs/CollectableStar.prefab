@@ -73,8 +73,8 @@ SpriteRenderer:
   m_SortingLayerID: -1316954403
   m_SortingLayer: 2
   m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: 393ff96bd12c9bc4489856fe11cdf5f9, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Sprite: {fileID: 21300000, guid: 2792173d76a5f4d2ebe800b6b4b096cf, type: 3}
+  m_Color: {r: 0.36320752, g: 0.9933541, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -109,7 +109,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6079516841491162879}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -8.55, y: 1.48, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -147,5 +147,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   score: 10
-  bonusClip: {fileID: 8300000, guid: c3fe77fd2d86c804ea633185177bec3b, type: 3}
+  bonusClip: {fileID: 8300000, guid: 9389281820c026a46a3735b4326e692d, type: 3}
   collectableSource: {fileID: 0}
+  scoreController: {fileID: 0}
