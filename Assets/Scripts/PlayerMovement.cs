@@ -19,7 +19,7 @@ public class PlayerMovement : MonoBehaviour
     private string deadZoneTag;
     [SerializeField]
     private Transform cameraTransform;
-    [SerializeField, Range(0, 2)]
+    [SerializeField, Range(0, 4)]
     private float deflectionForce = 1;
 
     [HideInInspector]
