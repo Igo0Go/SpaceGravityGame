@@ -94,6 +94,8 @@ public class PlayerMovement : MonoBehaviour
 
             StopAllCoroutines();
             StartCoroutine(ChangeCameraZValueCoroutine(collision.transform.localScale.x));
+
+            collision.GetComponent<GravityPointActivator>().Activate();
         }
         else if (collision.CompareTag(deadZoneTag))
         {
