@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -5,7 +6,6 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerMovement : MonoBehaviour
 {
-
     [SerializeField]
     [Min(1)]
     private float antiGravityForce;
@@ -25,13 +25,17 @@ public class PlayerMovement : MonoBehaviour
     [HideInInspector]
     public Rigidbody2D rb2D;
     private Rigidbody2D currentGravityPoint;
-    private Rigidbody2D lastGravityPoint;
+    private GravityPointController lastGravityPoint;
     private Transform myTransform;
     [HideInInspector]
     public Vector2 currentImpulseVector;
     [HideInInspector]
     public Vector2 resultVectorInSpace;
+    [SerializeField]
+    private Transform finalCameraPoint;
 
+    public event Action<bool> TeleportPossibleChanged;
+    public event Action TeleportImpossible;
 
     public float DeflectionForce
     {
@@ -52,6 +56,8 @@ public class PlayerMovement : MonoBehaviour
             }
         }
     }
+
+    private bool active = true;
 
     void Awake()
     {
@@ -74,12 +80,15 @@ public class PlayerMovement : MonoBehaviour
 
     public void OnMove(InputAction.CallbackContext context)
     {
-        currentImpulseVector = context.ReadValue<Vector2>();
+        if (active)
+        {
+            currentImpulseVector = context.ReadValue<Vector2>();
+        }
     }
 
     public void OnRespawnAction(InputAction.CallbackContext context)
     {
-        if (context.started)
+        if (context.started && active)
         {
             Respawn();
         }
@@ -90,7 +99,16 @@ public class PlayerMovement : MonoBehaviour
         if (collision.CompareTag(gravityPointTag))
         {
             resultVectorInSpace = Vector2.zero;
-            currentGravityPoint = lastGravityPoint = collision.GetComponent<Rigidbody2D>();
+
+            if(lastGravityPoint != null)
+            {
+                lastGravityPoint.OnGravityPointDestroyed -= OnLostSaveZone;
+            }
+
+            currentGravityPoint = collision.GetComponent<Rigidbody2D>();
+            lastGravityPoint = currentGravityPoint.GetComponent<GravityPointController>();
+            lastGravityPoint.OnGravityPointDestroyed += OnLostSaveZone;
+            TeleportPossibleChanged?.Invoke(true);
 
             StopAllCoroutines();
             StartCoroutine(ChangeCameraZValueCoroutine(collision.transform.localScale.x));
@@ -99,7 +117,10 @@ public class PlayerMovement : MonoBehaviour
         }
         else if (collision.CompareTag(deadZoneTag))
         {
-            StartCoroutine(RespawnCoroutine());
+            if(active)
+            {
+                StartCoroutine(RespawnCoroutine());
+            }
         }
         else if (collision.CompareTag("Collectable"))
         {
@@ -114,6 +135,28 @@ public class PlayerMovement : MonoBehaviour
         {
             currentGravityPoint = null;
         }
+    }
+
+    public void FinalAction()
+    {
+        active = false;
+        StartCoroutine(MoveCameraToFinalPoint());
+    }
+
+    private IEnumerator MoveCameraToFinalPoint()
+    {
+        cameraTransform.parent = null;
+        Vector3 startPosition = cameraTransform.position;
+        Vector3 endPosition = finalCameraPoint.position;
+
+        float t = 0f;
+        while (t < 1)
+        {
+            t += Time.deltaTime/5;
+            cameraTransform.position = Vector3.Lerp(startPosition, endPosition, t);
+            yield return null;
+        }
+        cameraTransform.position = endPosition;
     }
 
     private IEnumerator ChangeCameraZValueCoroutine(float planetRadius)
@@ -180,11 +223,12 @@ public class PlayerMovement : MonoBehaviour
     {
         if (lastGravityPoint == null)
         {
-            Debug.LogError("Точки сохранения ещё не было!!!");
+            TeleportImpossible?.Invoke();
+            Destroy(this);
             return;
         }
 
-        myTransform.position = lastGravityPoint.position;
+        myTransform.position = lastGravityPoint.transform.position;
         rb2D.velocity = Vector2.zero;
     }
 
@@ -208,5 +252,11 @@ public class PlayerMovement : MonoBehaviour
         cameraTransform.localPosition = new Vector3(0, 0, targetZ);
 
         Respawn();
+    }
+
+    private void OnLostSaveZone()
+    {
+        lastGravityPoint = null;
+        TeleportPossibleChanged?.Invoke(false);
     }
 }

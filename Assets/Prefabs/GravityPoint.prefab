@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7151028843457319767}
   - component: {fileID: 7151028843457319766}
   - component: {fileID: 2228394441844935786}
+  - component: {fileID: 8730041398723386826}
   m_Layer: 0
   m_Name: GravityPoint
   m_TagString: GravityPoint
@@ -138,3 +139,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _switcher: {fileID: 0}
   targetColor: {r: 0.9254902, g: 0.70980394, b: 0.1254902, a: 0.43137255}
+--- !u!114 &8730041398723386826
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7151028843457319761}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8611243b5e4f04342a3347d40783e300, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
