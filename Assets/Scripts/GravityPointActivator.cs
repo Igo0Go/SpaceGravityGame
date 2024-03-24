@@ -1,6 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+
 [RequireComponent(typeof(SpriteRenderer))]
 public class GravityPointActivator : MonoBehaviour
 {
@@ -17,8 +17,23 @@ public class GravityPointActivator : MonoBehaviour
             return;
         }
         _switcher.TakeSignal(this);
-        GetComponent<SpriteRenderer>().color = targetColor;
+        StartCoroutine(SmoothChangeColorCoroutine());
     }
 
 
+    private IEnumerator SmoothChangeColorCoroutine()
+    {
+        Color color = GetComponent<SpriteRenderer>().color;
+        SpriteRenderer renderer = GetComponent<SpriteRenderer>();
+
+        float t = 0;
+
+        while (t <1)
+        {
+            t += Time.deltaTime/2;
+            renderer.color = Color.Lerp(color, targetColor, t);
+            yield return null;
+        }
+        renderer.color = targetColor;
+    }
 }

@@ -84,7 +84,6 @@ public class UIController : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
         finalPanel.SetActive(true);
-
     }
 }
 [Serializable]
