@@ -26,7 +26,7 @@ public class UIController : MonoBehaviour
         finalPanel.SetActive(false);
         spawnerMarker.SetActive(false);
         playerMovement = FindObjectOfType<PlayerMovement>();
-        playerMovement.TeleportImpossible += ShowFinalPanel;
+        playerMovement.TeleportImpossible += ShowFinalPanelForLoseGame;
         playerMovement.TeleportPossibleChanged += SetActiveForSpawnerMarker;
     }
 
@@ -35,9 +35,14 @@ public class UIController : MonoBehaviour
         spawnerMarker.SetActive(active);
     }
 
-    public void ShowFinalPanel()
+    public void ShowFinalPanelForLoseGame()
     {
-        StartCoroutine(ShowFinalPanelCoroutone());
+        StartCoroutine(ShowFinalPanelCoroutone(false));
+    }
+
+    public void ShowFinalPanelForWinGame()
+    {
+        StartCoroutine(ShowFinalPanelCoroutone(true));
     }
 
     public void Restart()
@@ -50,37 +55,39 @@ public class UIController : MonoBehaviour
         Application.Quit();
     }
 
-    private IEnumerator ShowFinalPanelCoroutone()
+    private IEnumerator ShowFinalPanelCoroutone(bool reverseDarkness)
     {
         FinalEvent?.Invoke();
         playerMovement.FinalAction();
 
-        float t = 0;
-
-        foreach (var player in playables)
+        if(reverseDarkness )
         {
-            player.Stop();
-        }
+            float t = 0;
 
-        foreach (DeadZonePoint deadZone in deadZones)
-        {
-            deadZone.startPosition = deadZone.deadzone.position;
-        }
-
-
-        while (t < 1)
-        {
-            t += Time.deltaTime/5;
+            foreach (var player in playables)
+            {
+                player.Stop();
+            }
 
             foreach (DeadZonePoint deadZone in deadZones)
             {
-                deadZone.deadzone.position = Vector3.Lerp(deadZone.startPosition, deadZone.target.position, t);
+                deadZone.startPosition = deadZone.deadzone.position;
             }
 
-            yield return null;
+
+            while (t < 1)
+            {
+                t += Time.deltaTime / 5;
+
+                foreach (DeadZonePoint deadZone in deadZones)
+                {
+                    deadZone.deadzone.position = Vector3.Lerp(deadZone.startPosition, deadZone.target.position, t);
+                }
+
+                yield return null;
+            }
         }
 
-    
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
         finalPanel.SetActive(true);
