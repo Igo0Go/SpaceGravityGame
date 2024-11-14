@@ -23,6 +23,7 @@ public class GPSwitcher : MonoBehaviour
             activators.Remove(activator);
             if (activators.Count < 1)
             {
+                AudioSystem.PlaySound(AudioSystem.instance.ShowStarGroupClip);
                 StartCoroutine(SmoothCrossFadeForParts());
                 switchHandler.Invoke();
             }

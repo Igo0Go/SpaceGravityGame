@@ -1,8 +1,5 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Playables;
 using UnityEngine.SceneManagement;
 
 public class UIController : MonoBehaviour
@@ -11,11 +8,6 @@ public class UIController : MonoBehaviour
     private GameObject spawnerMarker;
     [SerializeField]
     private GameObject finalPanel;
-
-    [SerializeField]
-    private List<DeadZonePoint> deadZones;
-    [SerializeField]
-    private List<PlayableDirector> playables;
 
     private PlayerMovement playerMovement;
 
@@ -26,7 +18,7 @@ public class UIController : MonoBehaviour
         finalPanel.SetActive(false);
         spawnerMarker.SetActive(false);
         playerMovement = FindObjectOfType<PlayerMovement>();
-        playerMovement.TeleportImpossible += ShowFinalPanelForLoseGame;
+        playerMovement.TeleportImpossible += ShowFinalPanel;
         playerMovement.TeleportPossibleChanged += SetActiveForSpawnerMarker;
     }
 
@@ -35,14 +27,13 @@ public class UIController : MonoBehaviour
         spawnerMarker.SetActive(active);
     }
 
-    public void ShowFinalPanelForLoseGame()
+    public void ShowFinalPanel()
     {
-        StartCoroutine(ShowFinalPanelCoroutone(false));
-    }
-
-    public void ShowFinalPanelForWinGame()
-    {
-        StartCoroutine(ShowFinalPanelCoroutone(true));
+        FinalEvent?.Invoke();
+        playerMovement.FinalAction();
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        finalPanel.SetActive(true);
     }
 
     public void Restart()
@@ -53,44 +44,6 @@ public class UIController : MonoBehaviour
     public void Exit()
     {
         Application.Quit();
-    }
-
-    private IEnumerator ShowFinalPanelCoroutone(bool reverseDarkness)
-    {
-        FinalEvent?.Invoke();
-        playerMovement.FinalAction();
-
-        if(reverseDarkness )
-        {
-            float t = 0;
-
-            foreach (var player in playables)
-            {
-                player.Stop();
-            }
-
-            foreach (DeadZonePoint deadZone in deadZones)
-            {
-                deadZone.startPosition = deadZone.deadzone.position;
-            }
-
-
-            while (t < 1)
-            {
-                t += Time.deltaTime / 5;
-
-                foreach (DeadZonePoint deadZone in deadZones)
-                {
-                    deadZone.deadzone.position = Vector3.Lerp(deadZone.startPosition, deadZone.target.position, t);
-                }
-
-                yield return null;
-            }
-        }
-
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
-        finalPanel.SetActive(true);
     }
 }
 [Serializable]

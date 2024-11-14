@@ -34,6 +34,9 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField]
     private Transform finalCameraPoint;
 
+    [SerializeField]
+    private AudioPack audioPack;
+
     public event Action<bool> TeleportPossibleChanged;
     public event Action TeleportImpossible;
 
@@ -62,6 +65,8 @@ public class PlayerMovement : MonoBehaviour
     void Awake()
     {
         rb2D = GetComponent<Rigidbody2D>();
+
+        AudioSystem.instance = audioPack;
 
         myTransform = transform;
     }
@@ -100,6 +105,8 @@ public class PlayerMovement : MonoBehaviour
         {
             resultVectorInSpace = Vector2.zero;
 
+            AudioSystem.UseWaterMixer = true;
+
             if(lastGravityPoint != null)
             {
                 lastGravityPoint.OnGravityPointDestroyed -= OnLostSaveZone;
@@ -133,6 +140,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (collision.GetComponent<Rigidbody2D>() == currentGravityPoint)
         {
+            AudioSystem.UseWaterMixer = false;
             currentGravityPoint = null;
         }
     }
@@ -199,6 +207,10 @@ public class PlayerMovement : MonoBehaviour
 
     private void MoveInSpace()
     {
+        if(currentImpulseVector == Vector2.zero) 
+            return;
+
+
         float currentAngle = Vector2.SignedAngle(rb2D.velocity, currentImpulseVector.normalized);
         resultVectorInSpace = currentImpulseVector.normalized;
 

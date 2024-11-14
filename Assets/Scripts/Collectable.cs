@@ -9,20 +9,17 @@ public class Collectable : MonoBehaviour
     [SerializeField]
     private AudioClip bonusClip;
     [SerializeField]
-    private AudioSource collectableSource;
-    [SerializeField]
     private ScoreController scoreController;
     //todo Нужно дописать Счёт
     public void Collect()
     {
-        if (collectableSource != null && bonusClip != null)
+        if (bonusClip != null)
         {
-            collectableSource.PlayOneShot(bonusClip);
+            AudioSystem.PlaySound(bonusClip);
         }
         if (scoreController != null)
         {
             scoreController.AddScore(score);
-
         }
         Destroy(gameObject);
     }

@@ -9,15 +9,21 @@ public class GravityPointActivator : MonoBehaviour
     [SerializeField]
     private Color targetColor = Color.yellow;
 
+    private bool active = false;
+
     public void Activate()
     {
-        if (_switcher == null)
+        if(!active)
         {
-            Debug.Log("Не передан GPSwitcher");
-            return;
+            if (_switcher == null)
+            {
+                Debug.Log("Не передан GPSwitcher");
+                return;
+            }
+            _switcher.TakeSignal(this);
+            StartCoroutine(SmoothChangeColorCoroutine());
+            active = true;
         }
-        _switcher.TakeSignal(this);
-        StartCoroutine(SmoothChangeColorCoroutine());
     }
 
 

@@ -147,6 +147,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   score: 10
-  bonusClip: {fileID: 8300000, guid: 9389281820c026a46a3735b4326e692d, type: 3}
-  collectableSource: {fileID: 0}
+  bonusClip: {fileID: 8300000, guid: 63333250186699b4fbf13ae3fd200a7d, type: 3}
   scoreController: {fileID: 0}

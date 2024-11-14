@@ -45,6 +45,7 @@ public class DebugWindowScript : MonoBehaviour
         PlayerDeflectionForceInputField.onValueChanged.AddListener(OnPlayerDeflectionForceInputFieldChanget);
         sliderPlayerDeflectionForce.onValueChanged.AddListener(OnPlayerDeflectionForceSliderChanged);
         SetEditModeValue(false);
+        Debug.Log(gameObject.name);
     }
 
     private void Update()
